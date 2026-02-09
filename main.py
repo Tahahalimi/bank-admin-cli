@@ -73,12 +73,17 @@ def convert_id(acc_id):
         return int(acc_id[1:])
     return None
 
+def transaction(acc_id, amount):
+    conn = sqlite3.connect("data.db")
+    cursor = conn.cursor() 
+
 while True:
     print('''
 1.open new account
 2.Accont information
 3.withdraw
 4.Deposit
+5.Transfer
 5.Exit
         ''')
     toDo = input("what should I do for you? ")
@@ -99,9 +104,9 @@ while True:
 
             if acc:
                 print(f'''
-    Name = {acc[1]}  {acc[2]} 
-    National id Number = {acc[3]}
-    Balance = {acc[4]}$
+Name = {acc[1]}  {acc[2]} 
+National id Number = {acc[3]}
+Balance = {acc[4]}$
     ''')
             else:
                 print("Account not found")
@@ -109,6 +114,8 @@ while True:
         pass
     if toDo =="4":
         pass
-    if toDo == "5":
-        print("Goodbye!")
+    if toDo =="5":
+        pass
+    if toDo == "6":
+        print("Goodbye")
         break
