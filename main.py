@@ -76,7 +76,6 @@ def convert_id(acc_id):
 def transaction(sendId,receiveid, amount):
     conn = sqlite3.connect("data.db")
     cursor = conn.cursor()
-
     cursor.execute("SELECT balance FROM accounts WHERE id=?",(sendId,))
     senderBalnce = cursor.fetchone()[0]
     cursor.execute("SELECT balance FROM accounts WHERE id =?",(receiveid,))
@@ -89,10 +88,50 @@ def transaction(sendId,receiveid, amount):
         cursor.execute("UPDATE accounts SET balance = ? WHERE id = ?",(rNew,receiveid))
         conn.commit()
         conn.close()
-        print(f"Transaction is complete! Sender new balance: {sNew}")
+        print(f"Transaction is complete! Sender new balance: {sNew}$")
     else:
         print("Sender balance is not enough to do the transaction")
-        print(f"Sender Balnce: {senderBalnce}")
+        print(f"Sender Balnce: {senderBalnce}$")
+
+def check_Balance(accid):
+    conn = sqlite3.connect("data.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT balance FROM  accounts WHERE id=?",(accid,))
+    result = cursor.fetchone()
+
+    if result:
+        balance = result[0]
+        print(f"balance: {balance}$")
+    else:
+        print("Account not found!")
+
+    conn.close()
+def updateBalance(accid,amount,operation):
+    conn = sqlite3.connect("data.db")
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT balance FROM accounts WHERE id=?",(accid,))
+    result = cursor.fetchone()
+    amount = float(amount)
+    if result:
+        balance = result[0]
+        if operation == "4":
+            newBalance = balance + amount
+            cursor.execute("UPDATE accounts SET balance = ? WHERE id = ?",(newBalance,accid))
+            conn.commit()
+            print(f"Deposit successful. New balance:{newBalance}$")
+        elif operation == "3":
+            if balance >= amount:
+                newBalance = balance - amount
+                cursor.execute("UPDATE accounts SET balance = ? WHERE id = ?",(newBalance,accid))
+                conn.commit()
+                print(f"withdraw successful. New balance:{newBalance}$")
+            else:
+                print(f"Not enough balance! Current balance: {balance}$")
+    else:
+        print("Account not found!")
+    conn.close()
+
 while True:
     print('''
 1.open new account
@@ -100,7 +139,8 @@ while True:
 3.withdraw
 4.Deposit
 5.Transfer
-5.Exit
+6.Check balance
+7.Exit
         ''')
     toDo = input("what should I do for you? ")
     if toDo == "1":
@@ -127,9 +167,15 @@ Balance = {acc[4]}$
             else:
                 print("Account not found")
     if toDo =="3":
-        pass
+        accid = input("Enter The account id: ")
+        amount = input("Enter the amount you want withdraw: ")
+        accid = convert_id(accid)
+        updateBalance(accid,amount,"3")
     if toDo =="4":
-        pass
+        accid = input("Enter The account id: ")
+        amount = input("Enter the amount you want Deposit: ")
+        accid = convert_id(accid)
+        updateBalance(accid,amount,"4")
     if toDo =="5":
         senderAcc = input("Enter the sender account: ")
         receiverAcc = input("Enter receiver account: ")
@@ -140,6 +186,11 @@ Balance = {acc[4]}$
             transaction(senderAcc,receiverAcc,amount)
         else:
             print("something went wrong double check the accounts numbers")
-    if toDo == "6":
+    if toDo =="6":
+        accid = input("Enter the accont id: ")
+        accid = convert_id(accid)
+        check_Balance(accid)
+
+    if toDo == "7":
         print("Goodbye")
         break
