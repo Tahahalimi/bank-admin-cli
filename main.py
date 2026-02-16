@@ -73,10 +73,26 @@ def convert_id(acc_id):
         return int(acc_id[1:])
     return None
 
-def transaction(acc_id, amount):
+def transaction(sendId,receiveid, amount):
     conn = sqlite3.connect("data.db")
-    cursor = conn.cursor() 
+    cursor = conn.cursor()
 
+    cursor.execute("SELECT balance FROM accounts WHERE id=?",(sendId,))
+    senderBalnce = cursor.fetchone()[0]
+    cursor.execute("SELECT balance FROM accounts WHERE id =?",(receiveid,))
+    receiverBalance = cursor.fetchone()[0]
+    amount = float(amount)
+    if senderBalnce >= amount:
+        sNew = senderBalnce - amount
+        rNew = receiverBalance + amount
+        cursor.execute("UPDATE accounts SET balance = ? WHERE id = ?",(sNew,sendId))
+        cursor.execute("UPDATE accounts SET balance = ? WHERE id = ?",(rNew,receiveid))
+        conn.commit()
+        conn.close()
+        print(f"Transaction is complete! Sender new balance: {sNew}")
+    else:
+        print("Sender balance is not enough to do the transaction")
+        print(f"Sender Balnce: {senderBalnce}")
 while True:
     print('''
 1.open new account
@@ -115,7 +131,15 @@ Balance = {acc[4]}$
     if toDo =="4":
         pass
     if toDo =="5":
-        pass
+        senderAcc = input("Enter the sender account: ")
+        receiverAcc = input("Enter receiver account: ")
+        amount = input("Enter the amount: ")
+        senderAcc = convert_id(senderAcc)
+        receiverAcc = convert_id(receiverAcc)
+        if senderAcc and receiverAcc:
+            transaction(senderAcc,receiverAcc,amount)
+        else:
+            print("something went wrong double check the accounts numbers")
     if toDo == "6":
         print("Goodbye")
         break
