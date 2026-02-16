@@ -5,6 +5,7 @@ A simple bank management system built with Python and SQLite.
 ## Features
 - Open new account
 - View account information
+- Transfer money between accounts
 - Store data using SQLite
 - Command-line interface
 
